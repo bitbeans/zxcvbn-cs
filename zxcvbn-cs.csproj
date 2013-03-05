@@ -40,9 +40,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DefaultMatcherFactory.cs" />
+    <Compile Include="IMatcherFactory.cs" />
+    <Compile Include="Matcher\IMatcher.cs" />
+    <Compile Include="Matcher\NullMatcher.cs" />
     <Compile Include="Result.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Zxcvbn.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="TODO-Global.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

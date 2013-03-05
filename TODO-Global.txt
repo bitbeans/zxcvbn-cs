@@ -1,0 +1,3 @@
+﻿- Documentaion comments
+- Readme
+- Licencing?
