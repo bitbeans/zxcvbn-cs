@@ -1,0 +1,3 @@
+[submodule "zxcvbn"]
+	path = zxcvbn
+	url = git://github.com/lowe/zxcvbn.git
