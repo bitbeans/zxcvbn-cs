@@ -31,5 +31,10 @@ namespace Zxcvbn
         {
             return string.Format(str, args);
         }
+
+        public static string StringReverse(this string str)
+        {
+            return new string(str.Reverse().ToArray());
+        }
     }
 }

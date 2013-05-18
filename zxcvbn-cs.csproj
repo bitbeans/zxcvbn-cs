@@ -46,6 +46,7 @@
     <Compile Include="Matcher\IMatcher.cs" />
     <Compile Include="Matcher\NullMatcher.cs" />
     <Compile Include="Matcher\RepeatMatcher.cs" />
+    <Compile Include="Matcher\SequenceMatcher.cs" />
     <Compile Include="PasswordScoring.cs" />
     <Compile Include="Result.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

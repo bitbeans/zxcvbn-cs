@@ -119,7 +119,7 @@ namespace Zxcvbn
                 for (var k = 0; k < matchSequence.Count; k++)
                 {
                     var m1 = matchSequence[k];
-                    var m2 = (k < matchSequenceCopy.Count - 1 ? matchSequence[k + 1] : new Match() { i = password.Length }); // Next match, or a match past the end of the password
+                    var m2 = (k < matchSequence.Count - 1 ? matchSequence[k + 1] : new Match() { i = password.Length }); // Next match, or a match past the end of the password
 
                     matchSequenceCopy.Add(m1);
                     if (m1.j < m2.i - 1)

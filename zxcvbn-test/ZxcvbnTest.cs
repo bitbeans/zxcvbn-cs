@@ -105,6 +105,39 @@ namespace zxcvbn_test
             Assert.AreEqual(4, m2.i);
             Assert.AreEqual(7, m2.j);
             Assert.AreEqual("ffff", m2.Token);
+
+
+            res = repeat.MatchPassword("asdf");
+            Assert.AreEqual(0, res.Count());
+        }
+
+        [TestMethod]
+        public void SequenceMatcher()
+        {
+            var seq = new Zxcvbn.Matcher.SequenceMatcher();
+
+            var res = seq.MatchPassword("abcd");
+            Assert.AreEqual(1, res.Count());
+            var m1 = res.First();
+            Assert.AreEqual(0, m1.i);
+            Assert.AreEqual(3, m1.j);
+            Assert.AreEqual("abcd", m1.Token);
+
+            res = seq.MatchPassword("asdfabcdhujzyxwhgjj");
+            Assert.AreEqual(2, res.Count());
+
+            m1 = res.ElementAt(0);
+            Assert.AreEqual(4, m1.i);
+            Assert.AreEqual(7, m1.j);
+            Assert.AreEqual("abcd", m1.Token);
+
+            var m2 = res.ElementAt(1);
+            Assert.AreEqual(11, m2.i);
+            Assert.AreEqual(14, m2.j);
+            Assert.AreEqual("zyxw", m2.Token);
+
+            res = seq.MatchPassword("dfsjkhfjksdh");
+            Assert.AreEqual(0, res.Count());
         }
     }
 }
