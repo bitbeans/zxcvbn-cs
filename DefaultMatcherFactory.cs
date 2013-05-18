@@ -15,7 +15,9 @@ namespace Zxcvbn
 
         public DefaultMatcherFactory()
         {
-            matchers = new IMatcher[] { };
+            matchers = new IMatcher[] {
+                new RepeatMatcher()
+            };
         }
 
         public DefaultMatcherFactory(IMatcher[] matchers)

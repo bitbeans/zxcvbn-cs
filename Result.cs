@@ -29,11 +29,11 @@ namespace Zxcvbn
         public string Pattern { get; set; }
         public string Token { get; set; }
         public double Entropy { get; set; }
-        public int Cardinality { get; set; }
+        public int Cardinality { get; set; } // TODO: Check usage
 
         // TODO: Rename, or make internal?
-        public int i { get; set; } // Start Index ?
-        public int j { get; set; } // End Index ?
+        public int i { get; set; } // Start Index
+        public int j { get; set; } // End Index
     }
 
 }

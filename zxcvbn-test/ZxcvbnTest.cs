@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace zxcvbn_test
@@ -85,6 +86,25 @@ namespace zxcvbn_test
             Assert.AreEqual("11 minutes", Zxcvbn.Utility.DisplayTime(60 * 10));
             Assert.AreEqual("2 days", Zxcvbn.Utility.DisplayTime(60 * 60 * 24));
             Assert.AreEqual("17 years", Zxcvbn.Utility.DisplayTime(60 * 60 * 24 * 365 * 15.4));
+        }
+
+        [TestMethod]
+        public void RepeatMatcher()
+        {
+            var repeat = new Zxcvbn.Matcher.RepeatMatcher();
+
+            var res = repeat.MatchPassword("aasdffff");
+            Assert.AreEqual(2, res.Count());
+
+            var m1 = res.ElementAt(0);
+            Assert.AreEqual(0, m1.i);
+            Assert.AreEqual(1, m1.j);
+            Assert.AreEqual("aa", m1.Token);
+
+            var m2 = res.ElementAt(1);
+            Assert.AreEqual(4, m2.i);
+            Assert.AreEqual(7, m2.j);
+            Assert.AreEqual("ffff", m2.Token);
         }
     }
 }

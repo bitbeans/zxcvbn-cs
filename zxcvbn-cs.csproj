@@ -42,8 +42,10 @@
   <ItemGroup>
     <Compile Include="DefaultMatcherFactory.cs" />
     <Compile Include="IMatcherFactory.cs" />
+    <Compile Include="LinqExtensions.cs" />
     <Compile Include="Matcher\IMatcher.cs" />
     <Compile Include="Matcher\NullMatcher.cs" />
+    <Compile Include="Matcher\RepeatMatcher.cs" />
     <Compile Include="PasswordScoring.cs" />
     <Compile Include="Result.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

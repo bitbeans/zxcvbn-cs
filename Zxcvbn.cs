@@ -131,7 +131,7 @@ namespace Zxcvbn
                         {
                             i = ns,
                             j = ne,
-                            Token = password.Substring(ns, ne),
+                            Token = password.Substring(ns, ne - ns + 1),
                             Cardinality = bruteforce_cardinality,
                             Pattern = BruteforcePattern,
                             Entropy = Math.Log(Math.Pow(bruteforce_cardinality, ne - ns + 1), 2)
