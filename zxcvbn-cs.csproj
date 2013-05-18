@@ -44,8 +44,10 @@
     <Compile Include="IMatcherFactory.cs" />
     <Compile Include="Matcher\IMatcher.cs" />
     <Compile Include="Matcher\NullMatcher.cs" />
+    <Compile Include="PasswordScoring.cs" />
     <Compile Include="Result.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility.cs" />
     <Compile Include="Zxcvbn.cs" />
   </ItemGroup>
   <ItemGroup>

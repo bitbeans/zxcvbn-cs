@@ -51,5 +51,40 @@ namespace zxcvbn_test
                 var result = Zxcvbn.Zxcvbn.MatchPassword(password);
             }
         }
+
+        [TestMethod]
+        public void RunAllTestPasswordsWithNullMatcher()
+        {
+            //TODO: Make this test do something useful?
+
+            var zxc = new Zxcvbn.Zxcvbn(new Zxcvbn.DefaultMatcherFactory(new Zxcvbn.Matcher.IMatcher[]{ new Zxcvbn.Matcher.NullMatcher() }));
+
+            foreach (var password in testPasswords)
+            {
+                var result = zxc.GetPasswordMatches(password);
+            }
+        }
+
+        [TestMethod]
+        public void BruteForceCardinalityTest()
+        {
+            Assert.AreEqual(26, Zxcvbn.PasswordScoring.PasswordCardinality("asdf"));
+            Assert.AreEqual(26, Zxcvbn.PasswordScoring.PasswordCardinality("ASDF"));
+            Assert.AreEqual(52, Zxcvbn.PasswordScoring.PasswordCardinality("aSDf"));
+            Assert.AreEqual(10, Zxcvbn.PasswordScoring.PasswordCardinality("124890"));
+            Assert.AreEqual(62, Zxcvbn.PasswordScoring.PasswordCardinality("aS159Df"));
+            Assert.AreEqual(33, Zxcvbn.PasswordScoring.PasswordCardinality("!@<%:{$:#<@}{+&)(*%"));
+            Assert.AreEqual(100, Zxcvbn.PasswordScoring.PasswordCardinality("©"));
+            Assert.AreEqual(95, Zxcvbn.PasswordScoring.PasswordCardinality("ThisIs@T3stP4ssw0rd!"));
+        }
+
+        [TestMethod]
+        public void TimeDisplayStrings()
+        {
+            // Note that the time strings should be + 1
+            Assert.AreEqual("11 minutes", Zxcvbn.Utility.DisplayTime(60 * 10));
+            Assert.AreEqual("2 days", Zxcvbn.Utility.DisplayTime(60 * 60 * 24));
+            Assert.AreEqual("17 years", Zxcvbn.Utility.DisplayTime(60 * 60 * 24 * 365 * 15.4));
+        }
     }
 }

@@ -11,11 +11,21 @@ namespace Zxcvbn
     /// </summary>
     class DefaultMatcherFactory : IMatcherFactory
     {
+        IMatcher[] matchers;
+
+        public DefaultMatcherFactory()
+        {
+            matchers = new IMatcher[] { };
+        }
+
+        public DefaultMatcherFactory(IMatcher[] matchers)
+        {
+            this.matchers = matchers;
+        }
+
         public IEnumerable<IMatcher> CreateMatchers(IEnumerable<string> userInputs)
         {
-            return new IMatcher[] {
-                                      new NullMatcher()
-                                  };
+            return matchers;
         }
     }
 }

@@ -13,7 +13,8 @@ namespace Zxcvbn
     public class Result
     {
         public double Entropy { get; set; }
-        public int CrackTime { get; set; }
+        public long CalcTime { get; set; }
+        public double CrackTime { get; set; }
         public string CrackTimeDisplay { get; set; }
         public int Score { get; set; }
         public IList<Match> MatchSequence { get; set; }
@@ -31,8 +32,8 @@ namespace Zxcvbn
         public int Cardinality { get; set; }
 
         // TODO: Rename, or make internal?
-        public int i { get; set; }
-        public int j { get; set; }
+        public int i { get; set; } // Start Index ?
+        public int j { get; set; } // End Index ?
     }
 
 }
