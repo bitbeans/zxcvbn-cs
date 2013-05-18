@@ -35,6 +35,10 @@ namespace Zxcvbn.Matcher
                                 where ixJ == ixI + 1 // i.e. two consecutive letters in password are consecutive in sequence
                                 select s).FirstOrDefault();
 
+                // This isn't an ideal check, but we want to know whether the sequence is ascending/descending to keep entropy
+                //   calculation consistent with zxcvbn
+                var ascending = Sequences.Contains(seq);
+
                 // seq will be null when there are no matching sequences
                 if (seq != null)
                 {
@@ -48,12 +52,13 @@ namespace Zxcvbn.Matcher
                     // Only want to consider sequences that are longer than two characters
                     if (length > 2)
                     {
+                        var match = password.Substring(i, j - i);
                         matches.Add(new Match() {
                             i = i,
                             j = j - 1,
-                            Token = password.Substring(i, j - i),
+                            Token = match,
                             Pattern = SequencePattern,
-                            Entropy = CalculateEntropy()
+                            Entropy = CalculateEntropy(match, ascending)
                         });
                     }
                 }
@@ -64,10 +69,20 @@ namespace Zxcvbn.Matcher
             return matches;
         }
 
-
-        private double CalculateEntropy()
+        private double CalculateEntropy(string match, bool ascending)
         {
-            return 0;
+            var firstChar = match[0];
+
+            // XXX: This entropy calculation is hard coded, ideally this would (somehow) be derived from the sequences above
+            double baseEntropy;
+            if (firstChar == 'a' || firstChar == '1') baseEntropy = 1;
+            else if ('0' <= firstChar && firstChar <= '9') baseEntropy = Math.Log(10, 2); // Numbers
+            else if ('a' <= firstChar && firstChar <= 'z') baseEntropy = Math.Log(26, 2); // Lowercase
+            else baseEntropy = Math.Log(26, 1) + 1; // + 1 for uppercase
+
+            if (!ascending) baseEntropy += 1; // Descending instead of ascending give + 1 bit of entropy
+
+            return baseEntropy + Math.Log(match.Length, 2);
         }
     }
 }

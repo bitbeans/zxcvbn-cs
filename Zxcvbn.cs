@@ -75,7 +75,7 @@ namespace Zxcvbn
                 // All matches that end at the current character, test to see if the entropy is less
                 foreach (var match in matches.Where(m => m.j == k))
                 {
-                    var candidate_entropy = (match.i < 0 ? 0 : minimumEntropyToIndex[match.i - 1]) + match.Entropy;
+                    var candidate_entropy = (match.i <= 0 ? 0 : minimumEntropyToIndex[match.i - 1]) + match.Entropy;
                     if (candidate_entropy < minimumEntropyToIndex[k])
                     {
                         minimumEntropyToIndex[k] = candidate_entropy;
