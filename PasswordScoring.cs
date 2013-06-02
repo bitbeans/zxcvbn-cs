@@ -52,6 +52,24 @@ namespace Zxcvbn
             else return 4;
         }
 
+        /// <summary>
+        /// Caclulate binomial coefficient (i.e. nCk)
+        /// Uses same algorithm as zxcvbn (cf. scoring.coffee), from http://blog.plover.com/math/choose.html 
+        /// </summary>
+        public static long Binomial(int n, int k)
+        {
+            if (k > n) return 0;
+            if (k == 0) return 1;
 
+            long r = 1;
+            for (int d = 1; d <= k; ++d)
+            {
+                r *= n;
+                r /= d;
+                n -= 1;
+            }
+
+            return r;
+        }
     }
 }

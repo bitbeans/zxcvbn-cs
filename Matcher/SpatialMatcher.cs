@@ -23,18 +23,42 @@ namespace Zxcvbn.Matcher
             var i = 0;
             while (i < password.Length - 1)
             {
+                int turns = 0, shiftedCount = 0;
+                var lastDirection = -1;
+
                 var j = i + 1;
-                for (; j < password.Length && graph.IsCharAdjacent(password[j - 1], password[j]); ++j) ;
+                for (; j < password.Length; ++j)
+                {
+                    bool shifted;
+                    var foundDirection = graph.GetAdjacentCharDirection(password[j - 1], password[j], out shifted);
+
+                    if (foundDirection != -1)
+                    {
+                        // Spatial match continues
+                        if (shifted) shiftedCount++;
+                        if (lastDirection != foundDirection)
+                        {
+                            turns++;
+                            lastDirection = foundDirection;
+                        }
+                    }
+                    else break; // This character not a spatial match
+
+                }
 
                 // Only consider runs of greater than two
                 if (j - i > 2) 
                 {
-                    matches.Add(new Match()
+                    matches.Add(new SpatialMatch()
                     {
                         Pattern = SpatialPattern,
                         i = i,
                         j = j - 1,
-                        Token = password.Substring(i, j - i)
+                        Token = password.Substring(i, j - i),
+                        Graph = graph.Name,
+                        Entropy = graph.CalculateEntropy(j - i, turns, shiftedCount),
+                        Turns = turns,
+                        ShiftedCount = shiftedCount
                     });
                 }
 
@@ -79,10 +103,11 @@ namespace Zxcvbn.Matcher
     0 .
 ";
 
+
             return new List<SpatialGraph> { new SpatialGraph("qwerty", qwerty, true),
                     new SpatialGraph("dvorak", dvorak, true),
                     new SpatialGraph("keypad", keypad, false),
-                    new SpatialGraph("mac_kaypad", mac_keypad, false)
+                    new SpatialGraph("mac_keypad", mac_keypad, false)
                 };
         }
 
@@ -92,6 +117,8 @@ namespace Zxcvbn.Matcher
         {
             public string Name { get; private set; }
             private Dictionary<char, List<string>> AdjacencyGraph { get; set; }
+            public int StartingPositions { get; private set; }
+            public int AverageDegree { get; private set; }
 
             public SpatialGraph(string name, string layout, bool slanted)
             {
@@ -107,6 +134,27 @@ namespace Zxcvbn.Matcher
             {
                 if (AdjacencyGraph.ContainsKey(c)) return AdjacencyGraph[c].Any(s => s.Contains(testAdjacent));
                 return false;
+            }
+
+            /// <summary>
+            /// Returns the 'direction' of the adjacent character (i.e. index in the adjacency list).
+            /// If the character is not adjacent, -1 is returned
+            /// 
+            /// Uses the 'shifted' out parameter to let the caller know if the matched character is shifted
+            /// </summary>
+            public int GetAdjacentCharDirection(char c, char adjacent, out bool shifted)
+            {
+                //XXX: This function is a bit strange, with an out parameter this should be refactored into something sensible
+
+                shifted = false;
+
+                if (!AdjacencyGraph.ContainsKey(c)) return -1;
+
+                var adjacentEntry = AdjacencyGraph[c].FirstOrDefault(s => s.Contains(adjacent));
+                if (adjacentEntry == null) return -1;
+
+                shifted = adjacentEntry.IndexOf(adjacent) > 0; // i.e. shifted if not first character in the adjacency
+                return AdjacencyGraph[c].IndexOf(adjacentEntry);
             }
 
             private Point[] GetSlantedAdjacent(Point c)
@@ -162,7 +210,39 @@ namespace Zxcvbn.Matcher
                         }
                     }
                 }
-                
+
+
+
+                // Calculate average degree and starting positions, cf. init.coffee
+                StartingPositions = AdjacencyGraph.Count;
+                AverageDegree = AdjacencyGraph.Sum(adj => adj.Value.Count) / StartingPositions;
+            }
+
+            /// <summary>
+            /// Calculate entropy for a math that was found on this adjacency graph
+            /// </summary>
+            public double CalculateEntropy(int matchLength, int turns, int shiftedCount)
+            {
+                // This is an estimation of the number of patterns with length of matchLength or less with turns turns or less
+                var possibilities = Enumerable.Range(2, matchLength).Sum(i =>
+                {
+                    var possible_turns = Math.Min(turns, i - 1);
+                    return Enumerable.Range(1, possible_turns).Sum(j =>
+                    {
+                        return StartingPositions * Math.Pow(AverageDegree, j) * PasswordScoring.Binomial(i - 1, j - 1);
+                    });
+                });
+
+                var entropy = Math.Log(possibilities, 2);
+
+                // Entropy increaeses for a mix of shifted and unshifted
+                if (shiftedCount > 0)
+                {
+                    var unshifted = matchLength - shiftedCount;
+                    entropy += Math.Log(Enumerable.Range(0, Math.Min(shiftedCount, unshifted)).Sum(i => PasswordScoring.Binomial(matchLength, i)), 2);
+                }
+
+                return entropy;
             }
         }
 
@@ -183,5 +263,12 @@ namespace Zxcvbn.Matcher
                 return "{" + x + ", " + y + "}";
             }
         }
+    }
+
+    public class SpatialMatch : Match
+    {
+        public string Graph { get; set; }
+        public int Turns { get; set; }
+        public int ShiftedCount { get; set; }
     }
 }

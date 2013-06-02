@@ -143,7 +143,7 @@ namespace zxcvbn_test
         [TestMethod]
         public void DigitsRegexMatcher()
         {
-            var re = new Zxcvbn.Matcher.RegexMatcher("\\d{3,}");
+            var re = new Zxcvbn.Matcher.RegexMatcher("\\d{3,}", 10);
 
             var res = re.MatchPassword("abc123def");
             Assert.AreEqual(1, res.Count());
@@ -214,6 +214,17 @@ namespace zxcvbn_test
 
             res = sm.MatchPassword("plko14569852pyfdb");
             Assert.AreEqual(7, res.Count()); // Multiple matches from different keyboard types
+        }
+
+        [TestMethod]
+        public void BinomialTest()
+        {
+            Assert.AreEqual(1, Zxcvbn.PasswordScoring.Binomial(0, 0));
+            Assert.AreEqual(1, Zxcvbn.PasswordScoring.Binomial(1, 0));
+            Assert.AreEqual(0, Zxcvbn.PasswordScoring.Binomial(0, 1));
+            Assert.AreEqual(1, Zxcvbn.PasswordScoring.Binomial(1, 1));
+            Assert.AreEqual(56, Zxcvbn.PasswordScoring.Binomial(8, 3));
+            Assert.AreEqual(2598960, Zxcvbn.PasswordScoring.Binomial(52, 5));
         }
     }
 }

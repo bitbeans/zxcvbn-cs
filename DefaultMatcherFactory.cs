@@ -18,8 +18,8 @@ namespace Zxcvbn
             matchers = new IMatcher[] {
                 new RepeatMatcher(),
                 new SequenceMatcher(),
-                new RegexMatcher("\\d{3,}", "digits"),
-                new RegexMatcher("19\\d\\d|200\\d|201\\d", "year"),
+                new RegexMatcher("\\d{3,}", 10, "digits"),
+                new RegexMatcher("19\\d\\d|200\\d|201\\d", 119, "year"),
                 new DateMatcher(),
                 new SpatialMatcher()
             };

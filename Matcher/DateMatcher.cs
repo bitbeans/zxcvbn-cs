@@ -32,7 +32,7 @@ namespace Zxcvbn.Matcher
             var possibleDates = Regex.Matches(password, "\\d{4,8}"); // Slashless dates
             foreach (System.Text.RegularExpressions.Match dateMatch in possibleDates)
             {
-                if (IsDate(dateMatch.Value)) matches.Add(new Match()
+                if (IsDate(dateMatch.Value)) matches.Add(new DateMatch()
                 {
                     Pattern = DatePattern,
                     i = dateMatch.Index,
@@ -164,5 +164,13 @@ namespace Zxcvbn.Matcher
         {
             return 1 <= month && month <= 12 && 1 <= day && day <= 31;
         }
+    }
+
+    public class DateMatch : Match
+    {
+        public int Year { get; set; }
+        public int Month { get; set; }
+        public int Day { get; set; }
+        public char Separator { get; set; }
     }
 }
