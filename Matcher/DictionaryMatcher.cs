@@ -26,6 +26,18 @@ namespace Zxcvbn.Matcher
             rankedDictionary = new Lazy<Dictionary<string, int>>(() => BuildRankedDictionary(wordListPath));
         }
 
+        /// <summary>
+        /// Creates a new dictionary matcher from the passed in word list. If there is any frequency order then they should be in
+        /// decreasing frequency order.
+        /// </summary>
+        public DictionaryMatcher(string name, IEnumerable<string> wordList)
+        {
+            this.dictionaryName = name;
+
+            // Must ensure that the dictionary is using lowercase words only
+            rankedDictionary = new Lazy<Dictionary<string, int>>(() => BuildRankedDictionary(wordList.Select(w => w.ToLower())));
+        }
+
         public IEnumerable<Match> MatchPassword(string password)
         {
             var passwordLower = password.ToLower();
@@ -80,11 +92,17 @@ namespace Zxcvbn.Matcher
 
         private Dictionary<string, int> BuildRankedDictionary(string wordListPath)
         {
+            return BuildRankedDictionary(File.ReadAllLines(wordListPath));
+        }
+
+        private Dictionary<string, int> BuildRankedDictionary(IEnumerable<string> wordList)
+        {
             var dict = new Dictionary<string, int>();
 
             var i = 1;
-            foreach (var word in File.ReadAllLines(wordListPath))
+            foreach (var word in wordList)
             {
+                // The word list is assumed to be in increasing frequency order
                 dict[word] = i++;
             }
 

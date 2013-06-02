@@ -11,11 +11,19 @@ namespace Zxcvbn
     /// </summary>
     class DefaultMatcherFactory : IMatcherFactory
     {
-        IMatcher[] matchers;
+        List<IMatcher> matchers;
 
         public DefaultMatcherFactory()
         {
-            matchers = new IMatcher[] {
+            var dictionaryMatchers = new List<DictionaryMatcher>() {
+                new DictionaryMatcher("passwords", "passwords.lst"),
+                new DictionaryMatcher("english", "passwords.lst"),
+                new DictionaryMatcher("male_names", "passwords.lst"),
+                new DictionaryMatcher("female_names", "passwords.lst"),
+                new DictionaryMatcher("surnames", "passwords.lst"),
+            };
+
+            matchers = new List<IMatcher> {
                 new RepeatMatcher(),
                 new SequenceMatcher(),
                 new RegexMatcher("\\d{3,}", 10, "digits"),
@@ -23,16 +31,22 @@ namespace Zxcvbn
                 new DateMatcher(),
                 new SpatialMatcher()
             };
+
+            matchers.AddRange(dictionaryMatchers);
+            matchers.Add(new L33tMatcher(dictionaryMatchers));
         }
 
-        public DefaultMatcherFactory(IMatcher[] matchers)
+        public DefaultMatcherFactory(List<IMatcher> matchers)
         {
             this.matchers = matchers;
         }
 
         public IEnumerable<IMatcher> CreateMatchers(IEnumerable<string> userInputs)
         {
-            return matchers;
+            var userInputDict = new DictionaryMatcher("user_inputs", userInputs);
+            var leetUser = new L33tMatcher(userInputDict);
+
+            return matchers.Union(new List<IMatcher> { userInputDict, leetUser });
         }
     }
 }

@@ -46,6 +46,7 @@
     <Compile Include="Matcher\DateMatcher.cs" />
     <Compile Include="Matcher\DictionaryMatcher.cs" />
     <Compile Include="Matcher\IMatcher.cs" />
+    <Compile Include="Matcher\L33tMatcher.cs" />
     <Compile Include="Matcher\NullMatcher.cs" />
     <Compile Include="Matcher\RegexMatcher.cs" />
     <Compile Include="Matcher\RepeatMatcher.cs" />

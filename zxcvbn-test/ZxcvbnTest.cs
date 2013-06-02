@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -58,7 +59,7 @@ namespace zxcvbn_test
         {
             //TODO: Make this test do something useful?
 
-            var zxc = new Zxcvbn.Zxcvbn(new Zxcvbn.DefaultMatcherFactory(new Zxcvbn.Matcher.IMatcher[]{ new Zxcvbn.Matcher.NullMatcher() }));
+            var zxc = new Zxcvbn.Zxcvbn(new Zxcvbn.DefaultMatcherFactory(new List<Zxcvbn.Matcher.IMatcher>{ new Zxcvbn.Matcher.NullMatcher() }));
 
             foreach (var password in testPasswords)
             {
@@ -240,6 +241,26 @@ namespace zxcvbn_test
 
             res = dm.MatchPassword("ChOrEograPHy");
             Assert.AreEqual(1, res.Count());
+
+
+            var leet = new Zxcvbn.Matcher.L33tMatcher(dm);
+            res = leet.MatchPassword("3mu");
+            Assert.AreEqual(1, res.Count());
+
+            res = leet.MatchPassword("3mupr4nce|egume");
+        }
+
+        [TestMethod]
+        public void L33tTest()
+        {
+            var l = new Zxcvbn.Matcher.L33tMatcher(new Zxcvbn.Matcher.DictionaryMatcher("test", new List<string> {"password"}));
+
+            l.MatchPassword("password");
+            l.MatchPassword("p@ssword");
+            l.MatchPassword("p1ssword");
+            l.MatchPassword("p1!ssword");
+            l.MatchPassword("p1!ssw0rd");
+            l.MatchPassword("p1!ssw0rd|");
         }
     }
 }
