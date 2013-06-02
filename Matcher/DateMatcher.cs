@@ -6,7 +6,8 @@ using System.Text.RegularExpressions;
 
 namespace Zxcvbn.Matcher
 {
-    // TODO: This whole class is a bit messy but works, could do with a touching up
+    // TODO: This whole class is a bit messy but works (hust), could do with a touching up. In particular this version does not allow the match to contain
+    //       the matched year/month/day which zxcvbn can do
     public class DateMatcher : IMatcher
     {
         const string DatePattern = "date";
@@ -32,12 +33,13 @@ namespace Zxcvbn.Matcher
             var possibleDates = Regex.Matches(password, "\\d{4,8}"); // Slashless dates
             foreach (System.Text.RegularExpressions.Match dateMatch in possibleDates)
             {
-                if (IsDate(dateMatch.Value)) matches.Add(new DateMatch()
+                if (IsDate(dateMatch.Value)) matches.Add(new Match()
                 {
                     Pattern = DatePattern,
                     i = dateMatch.Index,
                     j = dateMatch.Index + dateMatch.Length - 1,
-                    Token = dateMatch.Value
+                    Token = dateMatch.Value,
+                    Entropy = CalculateEntropy(dateMatch.Value, null, false)
                 });
             }
 
@@ -52,7 +54,8 @@ namespace Zxcvbn.Matcher
                     Pattern = DatePattern,
                     i = dateMatch.Index,
                     j = dateMatch.Index + dateMatch.Length - 1,
-                    Token = dateMatch.Value
+                    Token = dateMatch.Value,
+                    Entropy = CalculateEntropy(dateMatch.Value, year, true)
                 });
             }
 
@@ -67,11 +70,33 @@ namespace Zxcvbn.Matcher
                     Pattern = DatePattern,
                     i = dateMatch.Index,
                     j = dateMatch.Index + dateMatch.Length - 1,
-                    Token = dateMatch.Value
+                    Token = dateMatch.Value,
+                    Entropy = CalculateEntropy(dateMatch.Value, year, true)
                 });
             }
 
             return matches;
+        }
+
+        private double CalculateEntropy(string match, int? year, bool separator)
+        {
+            // The entropy calculation is pretty straightforward
+
+            // This is a slight departure from the zxcvbn case where the match has the actual year so the two-year vs four-year
+            //   can always be known rather than guessed for strings without separators. 
+            if (!year.HasValue)
+            {
+                // Guess year length from string length
+                year = match.Length <= 6 ? 99 : 9999;
+            }
+
+            var entropy = 0.0;
+            if (year < 100) entropy = Math.Log(31 * 12 * 100, 2); // 100 years (two-digits)
+            else entropy = Math.Log(31 * 12 * 119, 2); // 119 years (four digit years valid range)
+
+            if (separator) entropy += 2; // Extra two bits for separator (/\...)
+
+            return entropy;
         }
 
         /// <summary>
@@ -166,11 +191,4 @@ namespace Zxcvbn.Matcher
         }
     }
 
-    public class DateMatch : Match
-    {
-        public int Year { get; set; }
-        public int Month { get; set; }
-        public int Day { get; set; }
-        public char Separator { get; set; }
-    }
 }
