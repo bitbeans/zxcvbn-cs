@@ -44,6 +44,7 @@
     <Compile Include="IMatcherFactory.cs" />
     <Compile Include="LinqExtensions.cs" />
     <Compile Include="Matcher\DateMatcher.cs" />
+    <Compile Include="Matcher\DictionaryMatcher.cs" />
     <Compile Include="Matcher\IMatcher.cs" />
     <Compile Include="Matcher\NullMatcher.cs" />
     <Compile Include="Matcher\RegexMatcher.cs" />

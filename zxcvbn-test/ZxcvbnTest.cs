@@ -226,5 +226,20 @@ namespace zxcvbn_test
             Assert.AreEqual(56, Zxcvbn.PasswordScoring.Binomial(8, 3));
             Assert.AreEqual(2598960, Zxcvbn.PasswordScoring.Binomial(52, 5));
         }
+
+        [TestMethod]
+        public void DictionaryTest()
+        {
+            var dm = new Zxcvbn.Matcher.DictionaryMatcher("test", "test_dictionary.txt");
+
+            var res = dm.MatchPassword("NotInDictionary");
+            Assert.AreEqual(0, res.Count());
+
+            res = dm.MatchPassword("choreography");
+            Assert.AreEqual(1, res.Count());
+
+            res = dm.MatchPassword("ChOrEograPHy");
+            Assert.AreEqual(1, res.Count());
+        }
     }
 }

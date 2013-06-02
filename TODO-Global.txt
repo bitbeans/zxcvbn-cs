@@ -1,7 +1,10 @@
 ﻿- Documentaion comments
 - Readme
+	- Especially about dictionary files
 - Licencing?
 - Check correspondence with JS version, esp:
 	- Date Checker seems to reject two digit years? (cf. check_date) -- confirm
 	- Date checker operates differently (i.e. it may return more matches in JS version) this should not affect end result -- confirm
 - Should all match types have a cardinality? (spatial and date currently don't)
+- Only create matchers once for lifetime of Zxcvbn object, but allow different user inputs for each password matching
+- Provide a modified version of the frequency lists python script to just output the separate word lists
