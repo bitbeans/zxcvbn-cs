@@ -139,5 +139,39 @@ namespace zxcvbn_test
             res = seq.MatchPassword("dfsjkhfjksdh");
             Assert.AreEqual(0, res.Count());
         }
+
+        [TestMethod]
+        public void DigitsRegexMatcher()
+        {
+            var re = new Zxcvbn.Matcher.RegexMatcher("\\d{3,}");
+
+            var res = re.MatchPassword("abc123def");
+            Assert.AreEqual(1, res.Count());
+            var m1 = res.First();
+            Assert.AreEqual(3, m1.i);
+            Assert.AreEqual(5, m1.j);
+            Assert.AreEqual("123", m1.Token);
+
+            res = re.MatchPassword("123456789a12345b1234567");
+            Assert.AreEqual(3, res.Count());
+            var m3 = res.ElementAt(2);
+            Assert.AreEqual("1234567", m3.Token);
+
+            res = re.MatchPassword("12");
+            Assert.AreEqual(0, res.Count());
+
+            res = re.MatchPassword("dfsdfdfhgjkdfngjl");
+            Assert.AreEqual(0, res.Count());
+        }
+
+        [TestMethod]
+        public void DateMatcher()
+        {
+            var dm = new Zxcvbn.Matcher.DateMatcher();
+
+            var res = dm.MatchPassword("123456");
+
+            res = dm.MatchPassword("12345678");
+        }
     }
 }
