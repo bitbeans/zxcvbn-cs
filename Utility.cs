@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Zxcvbn
 {
+    /// <summary>
+    /// A few useful extension methods
+    /// </summary>
     static class Utility
     {
         /// <summary>
@@ -35,6 +38,23 @@ namespace Zxcvbn
         public static string StringReverse(this string str)
         {
             return new string(str.Reverse().ToArray());
+        }
+
+        /// <summary>
+        /// A convenience for parsing a substring as an int and returning the results. Uses TryParse, and so returns zero where there is no valid int
+        /// </summary>
+        /// <param name="r">Substring parsed as int or zero</param>
+        /// <returns>True if the parse succeeds</returns>
+        public static bool IntParseSubstring(this string str, int startIndex, int length, out int r)
+        {
+            return Int32.TryParse(str.Substring(startIndex, length), out r);
+        }
+
+        public static int ToInt(this string str)
+        {
+            int r = 0;
+            Int32.TryParse(str, out r);
+            return r;
         }
     }
 }

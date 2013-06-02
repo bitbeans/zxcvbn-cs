@@ -1,3 +1,6 @@
 ﻿- Documentaion comments
 - Readme
 - Licencing?
+- Check correspondence with JS version, esp:
+	- Date Checker seems to reject two digit years? (cf. check_date) -- confirm
+	- Date checker operates differently (i.e. it may return more matches in JS version) this should not affect end result -- confirm

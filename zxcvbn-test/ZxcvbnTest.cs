@@ -169,9 +169,35 @@ namespace zxcvbn_test
         {
             var dm = new Zxcvbn.Matcher.DateMatcher();
 
-            var res = dm.MatchPassword("123456");
+            var res = dm.MatchPassword("1297");
+            Assert.AreEqual(1, res.Count());
 
-            res = dm.MatchPassword("12345678");
+            res = dm.MatchPassword("98123");
+            Assert.AreEqual(1, res.Count());
+
+            res = dm.MatchPassword("221099");
+            Assert.AreEqual(1, res.Count());
+
+            res = dm.MatchPassword("352002");
+            Assert.AreEqual(1, res.Count());
+
+            res = dm.MatchPassword("2011157");
+            Assert.AreEqual(1, res.Count());
+
+            res = dm.MatchPassword("11222015");
+            Assert.AreEqual(1, res.Count());
+
+            res = dm.MatchPassword("2013/06/1");
+            Assert.AreEqual(2, res.Count()); // 2 since 2013 is a valid date without separators in its own right
+
+            res = dm.MatchPassword("13-05-08");
+            Assert.AreEqual(2, res.Count()); // 2 since prefix and suffix year sep matcher valid, so counts twice
+
+            res = dm.MatchPassword("17 8 1992");
+            Assert.AreEqual(3, res.Count()); // 3 since 1992 is a valid date without separators in its own right, and a partial match is valid prefix year
+
+            res = dm.MatchPassword("10.16.16");
+            Assert.AreEqual(1, res.Count());
         }
     }
 }
