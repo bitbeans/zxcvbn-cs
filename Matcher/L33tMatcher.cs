@@ -135,7 +135,7 @@ namespace Zxcvbn.Matcher
             subs['i'] = "1!|";
             subs['l'] = "1|7";
             subs['o'] = "0";
-            subs['s'] = "$4";
+            subs['s'] = "$5";
             subs['t'] = "+7";
             subs['x'] = "%";
             subs['z'] = "2";

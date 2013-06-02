@@ -17,10 +17,10 @@ namespace Zxcvbn
         {
             var dictionaryMatchers = new List<DictionaryMatcher>() {
                 new DictionaryMatcher("passwords", "passwords.lst"),
-                new DictionaryMatcher("english", "passwords.lst"),
-                new DictionaryMatcher("male_names", "passwords.lst"),
-                new DictionaryMatcher("female_names", "passwords.lst"),
-                new DictionaryMatcher("surnames", "passwords.lst"),
+                new DictionaryMatcher("english", "english.lst"),
+                new DictionaryMatcher("male_names", "male_names.lst"),
+                new DictionaryMatcher("female_names", "female_names.lst"),
+                new DictionaryMatcher("surnames", "surnames.lst"),
             };
 
             matchers = new List<IMatcher> {

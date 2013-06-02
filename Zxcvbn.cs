@@ -65,7 +65,7 @@ namespace Zxcvbn
 
             // Minimum entropy up to position k in the password
             var minimumEntropyToIndex = new double[password.Length];
-            var bestMatchFoIndex = new Match[password.Length];
+            var bestMatchForIndex = new Match[password.Length];
  
             for (var k = 0; k < password.Length; k++)
             {
@@ -79,7 +79,7 @@ namespace Zxcvbn
                     if (candidate_entropy < minimumEntropyToIndex[k])
                     {
                         minimumEntropyToIndex[k] = candidate_entropy;
-                        bestMatchFoIndex[k] = match;
+                        bestMatchForIndex[k] = match;
                     }
                 }
             }
@@ -89,10 +89,10 @@ namespace Zxcvbn
             var matchSequence = new List<Match>();
             for (var k = password.Length - 1; k >= 0; k--)
             {
-                if (bestMatchFoIndex[k] != null)
+                if (bestMatchForIndex[k] != null)
                 {
-                    matchSequence.Add(bestMatchFoIndex[k]);
-                    k = bestMatchFoIndex[k].i; // Jump back to start of match
+                    matchSequence.Add(bestMatchForIndex[k]);
+                    k = bestMatchForIndex[k].i; // Jump back to start of match
                 }
             }
             matchSequence.Reverse();

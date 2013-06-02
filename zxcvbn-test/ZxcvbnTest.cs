@@ -9,12 +9,12 @@ namespace zxcvbn_test
     public class ZxcvbnTest
     {
         private static string[] testPasswords = new string[] {
-			"zxcvbn",
-			"qwER43@!",
-			"Tr0ub4dour&3",
-			"correcthorsebatterystaple",
-			"coRrecth0rseba++ery9.23.2007staple$",
-			"D0g..................",
+            //"zxcvbn",
+            //"qwER43@!",
+            //"Tr0ub4dour&3",
+            //"correcthorsebatterystaple",
+            //"coRrecth0rseba++ery9.23.2007staple$",
+            //"D0g..................",
 			"abcdefghijk987654321",
 			"neverforget13/3/1997",
 			"1qaz2wsx3edc",
@@ -46,13 +46,67 @@ namespace zxcvbn_test
         };
 
         [TestMethod]
+        //[Ignore] // Test will not run without dictionaries in the output directory
         public void RunAllTestPasswords()
         {
+            var zx = new Zxcvbn.Zxcvbn(new Zxcvbn.DefaultMatcherFactory());
+
             foreach (var password in testPasswords)
             {
-                var result = Zxcvbn.Zxcvbn.MatchPassword(password);
+                var result = zx.GetPasswordMatches(password);
+
+                O("Password:        {0}", result.Password);
+                O("Entropy:         {0}", result.Entropy);
+                O("Crack Time (s):  {0}", result.CrackTime);
+                O("Crack Time (d):  {0}", result.CrackTimeDisplay);
+                O("Score (0 to 4):  {0}", result.Score);
+                O("Calc time (ms):  {0}", result.CalcTime);
+                O("--------------------");
+
+                foreach (var match in result.MatchSequence)
+                {
+                    if (match != result.MatchSequence.First()) O("+++++++++++++++++");
+
+                    O(match.Token);
+                    O("Pattern:      {0}", match.Pattern);
+                    O("Entropy:      {0}", match.Entropy);
+
+                    if (match is Zxcvbn.Matcher.DictionaryMatch)
+                    {
+                        var dm = match as Zxcvbn.Matcher.DictionaryMatch;
+                        O("Dict. Name:   {0}", dm.DictionaryName);
+                        O("Rank:         {0}", dm.Rank);
+                        O("Base Entropy: {0}", dm.BaseEntropy);
+                        O("Upper Entpy:  {0}", dm.UppercaseEntropy);
+                    }
+
+                    if (match is Zxcvbn.Matcher.L33tDictionaryMatch)
+                    {
+                        var lm = match as Zxcvbn.Matcher.L33tDictionaryMatch;
+                        O("L33t Entpy:   {0}", lm.L33tEntropy);
+                        O("Unleet:       {0}", lm.MatchedWord);
+                    }
+
+                    if (match is Zxcvbn.Matcher.SpatialMatch)
+                    {
+                        var sm = match as Zxcvbn.Matcher.SpatialMatch;
+                        O("Graph:        {0}", sm.Graph);
+                        O("Turns:        {0}", sm.Turns);
+                        O("Shifted Keys: {0}", sm.ShiftedCount);
+                    }
+                }
+
+                O("");
+                O("=========================================");
+                O("");
             }
         }
+
+        private void O(string format, params object[] args)
+        {
+            System.Diagnostics.Debug.WriteLine(format, args);
+        }
+
 
         [TestMethod]
         public void RunAllTestPasswordsWithNullMatcher()

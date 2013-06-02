@@ -76,31 +76,31 @@ namespace Zxcvbn.Matcher
             const string qwerty = @"
 `~ 1! 2@ 3# 4$ 5% 6^ 7& 8* 9( 0) -_ =+
     qQ wW eE rR tT yY uU iI oO pP [{ ]} \|
-        aA sS dD fF gG hH jJ kK lL ;: '""
-        zZ xX cC vV bB nN mM ,< .> /?
+     aA sS dD fF gG hH jJ kK lL ;: '""
+      zZ xX cC vV bB nN mM ,< .> /?
 ";
 
             const string dvorak = @"
 `~ 1! 2@ 3# 4$ 5% 6^ 7& 8* 9( 0) [{ ]}
     '"" ,< .> pP yY fF gG cC rR lL /? =+ \|
-        aA oO eE uU iI dD hH tT nN sS -_
-        ;: qQ jJ kK xX bB mM wW vV zZ
+     aA oO eE uU iI dD hH tT nN sS -_
+      ;: qQ jJ kK xX bB mM wW vV zZ
 ";
 
             const string keypad = @"
-    / * -
+  / * -
 7 8 9 +
 4 5 6
 1 2 3
-    0 .
+  0 .
 ";
 
             const string mac_keypad = @"
-    = / *
+  = / *
 7 8 9 -
 4 5 6 +
 1 2 3
-    0 .
+  0 .
 ";
 
 
@@ -118,7 +118,7 @@ namespace Zxcvbn.Matcher
             public string Name { get; private set; }
             private Dictionary<char, List<string>> AdjacencyGraph { get; set; }
             public int StartingPositions { get; private set; }
-            public int AverageDegree { get; private set; }
+            public double AverageDegree { get; private set; }
 
             public SpatialGraph(string name, string layout, bool slanted)
             {
@@ -150,7 +150,7 @@ namespace Zxcvbn.Matcher
 
                 if (!AdjacencyGraph.ContainsKey(c)) return -1;
 
-                var adjacentEntry = AdjacencyGraph[c].FirstOrDefault(s => s.Contains(adjacent));
+                var adjacentEntry = AdjacencyGraph[c].FirstOrDefault(s => s != null && s.Contains(adjacent));
                 if (adjacentEntry == null) return -1;
 
                 shifted = adjacentEntry.IndexOf(adjacent) > 0; // i.e. shifted if not first character in the adjacency
@@ -181,7 +181,7 @@ namespace Zxcvbn.Matcher
 
                 // Put the characters in each keyboard cell into the map agains t their coordinates
                 var positionTable = new Dictionary<Point, string>();
-                var lines = layout.Split('\n');
+                var lines = layout.Split("\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                 for (int y = 0; y < lines.Length; ++y)
                 {
                     var line = lines[y];
@@ -206,7 +206,9 @@ namespace Zxcvbn.Matcher
 
                         foreach (var adjacent in adjacentPoints)
                         {
+                            // We want to include nulls so that direction is correspondent with index in the list
                             if (positionTable.ContainsKey(adjacent)) AdjacencyGraph[c].Add(positionTable[adjacent]);
+                            else AdjacencyGraph[c].Add(null);
                         }
                     }
                 }
@@ -215,7 +217,7 @@ namespace Zxcvbn.Matcher
 
                 // Calculate average degree and starting positions, cf. init.coffee
                 StartingPositions = AdjacencyGraph.Count;
-                AverageDegree = AdjacencyGraph.Sum(adj => adj.Value.Count) / StartingPositions;
+                AverageDegree = AdjacencyGraph.Sum(adj => adj.Value.Where(a => a != null).Count()) * 1.0 / StartingPositions;
             }
 
             /// <summary>
@@ -224,7 +226,7 @@ namespace Zxcvbn.Matcher
             public double CalculateEntropy(int matchLength, int turns, int shiftedCount)
             {
                 // This is an estimation of the number of patterns with length of matchLength or less with turns turns or less
-                var possibilities = Enumerable.Range(2, matchLength).Sum(i =>
+                var possibilities = Enumerable.Range(2, matchLength - 1).Sum(i =>
                 {
                     var possible_turns = Math.Min(turns, i - 1);
                     return Enumerable.Range(1, possible_turns).Sum(j =>
@@ -239,7 +241,7 @@ namespace Zxcvbn.Matcher
                 if (shiftedCount > 0)
                 {
                     var unshifted = matchLength - shiftedCount;
-                    entropy += Math.Log(Enumerable.Range(0, Math.Min(shiftedCount, unshifted)).Sum(i => PasswordScoring.Binomial(matchLength, i)), 2);
+                    entropy += Math.Log(Enumerable.Range(0, Math.Min(shiftedCount, unshifted) + 1).Sum(i => PasswordScoring.Binomial(matchLength, i)), 2);
                 }
 
                 return entropy;

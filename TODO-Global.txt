@@ -8,3 +8,4 @@
 	- l33t matching is different here, test that I actually understand zxcvbn's implementation and that results are comparable.
 - Should all match types have a cardinality? (spatial and date currently don't)
 - Provide a modified version of the frequency lists python script to just output the separate word lists
+- Rename main entry functions to be something more sensible
