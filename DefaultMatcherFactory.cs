@@ -19,7 +19,9 @@ namespace Zxcvbn
                 new RepeatMatcher(),
                 new SequenceMatcher(),
                 new RegexMatcher("\\d{3,}", "digits"),
-                new RegexMatcher("19\\d\\d|200\\d|201\\d", "year")
+                new RegexMatcher("19\\d\\d|200\\d|201\\d", "year"),
+                new DateMatcher(),
+                new SpatialMatcher()
             };
         }
 

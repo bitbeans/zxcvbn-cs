@@ -199,5 +199,21 @@ namespace zxcvbn_test
             res = dm.MatchPassword("10.16.16");
             Assert.AreEqual(1, res.Count());
         }
+
+        [TestMethod]
+        public void SpatialMatcher()
+        {
+            var sm = new Zxcvbn.Matcher.SpatialMatcher();
+
+            var res = sm.MatchPassword("qwert");
+            Assert.AreEqual(1, res.Count());
+            var m1 = res.First();
+            Assert.AreEqual("qwert", m1.Token);
+            Assert.AreEqual(0, m1.i);
+            Assert.AreEqual(4, m1.j);
+
+            res = sm.MatchPassword("plko14569852pyfdb");
+            Assert.AreEqual(7, res.Count()); // Multiple matches from different keyboard types
+        }
     }
 }
