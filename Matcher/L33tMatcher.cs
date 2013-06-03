@@ -5,21 +5,39 @@ using System.Text;
 
 namespace Zxcvbn.Matcher
 {
+    /// <summary>
+    /// This matcher applies some known l33t character substitutions and then attempts to match against passed in dictionary matchers.
+    /// This detects passwords like 4pple which has a '4' substituted for an 'a'
+    /// </summary>
     public class L33tMatcher : IMatcher
     {
         private List<DictionaryMatcher> dictionaryMatchers;
         private Dictionary<char, string> substitutions;
 
+        /// <summary>
+        /// Create a l33t matcher that applies substitutions and then matches agains the passed in list of dictionary matchers.
+        /// </summary>
+        /// <param name="dictionaryMatchers">The list of dictionary matchers to check transformed passwords against</param>
         public L33tMatcher(List<DictionaryMatcher> dictionaryMatchers)
         {
             this.dictionaryMatchers = dictionaryMatchers;
             substitutions = BuildSubstitutionsMap();
         }
 
+        /// <summary>
+        /// Create a l33t matcher that applies substitutions and then matches agains a single dictionary matcher.
+        /// </summary>
+        /// <param name="dictionaryMatcher">The dictionary matcher to check transformed passwords against</param>
         public L33tMatcher(DictionaryMatcher dictionaryMatcher) : this(new List<DictionaryMatcher> { dictionaryMatcher })
         {
         }
 
+        /// <summary>
+        /// Apply applicable l33t transformations and check <paramref name="password"/> against the dictionaries. 
+        /// </summary>
+        /// <param name="password">The password to check</param>
+        /// <returns>A list of match objects where l33t substitutions match dictionary words</returns>
+        /// <seealso cref="L33tDictionaryMatch"/>
         public IEnumerable<Match> MatchPassword(string password)
         {
             var subs = EnumerateSubtitutions(GetRelevantSubstitutions(password));
@@ -87,10 +105,11 @@ namespace Zxcvbn.Matcher
             // Produce a list of maps from l33t character to normal character. Some substitutions can be more than one normal character though,
             //  so we have to produce an entry that maps from the l33t char to both possibilities
 
-            //XXX: This function produces different combinations to the original in zxcvbn. It may require some work to get identical.
+            //XXX: This function produces different combinations to the original in zxcvbn. It may require some more work to get identical.
             
-            //XXX: The function is also limited in that it only ever considers one substitution for each l33t character (e.g. p||nk could feasibly
-            //     match 'plink' but this method would never show this.
+            //XXX: The function is also limited in that it only ever considers one substitution for each l33t character (e.g. ||ke could feasibly
+            //     match 'like' but this method would never show this). My understanding is that this is also a limitation in zxcvbn and so I
+            //     feel no need to correct it here.
 
             var subs = new List<Dictionary<char, char>>();
             subs.Add(new Dictionary<char, char>()); // Must be at least one mapping dictionary to work
@@ -149,12 +168,26 @@ namespace Zxcvbn.Matcher
         }
     }
 
+    /// <summary>
+    /// L33tMatcher results are like dictionary match results with some extra information that pertains to the extra entropy that
+    /// is garnered by using substitutions.
+    /// </summary>
     public class L33tDictionaryMatch : DictionaryMatch
     {
+        /// <summary>
+        /// The extra entropy from using l33t substitutions
+        /// </summary>
         public double L33tEntropy { get; set; }
-        public bool L33t { get { return true; } }
+
+        /// <summary>
+        /// The character mappings that are in use for this match
+        /// </summary>
         public Dictionary<char, char> Subs { get; set; }
 
+        /// <summary>
+        /// Create a new l33t match from a dictionary match
+        /// </summary>
+        /// <param name="dm">The dictionary match to initialise the l33t match from</param>
         public L33tDictionaryMatch(DictionaryMatch dm)
         {
             this.BaseEntropy = dm.BaseEntropy;
@@ -172,6 +205,9 @@ namespace Zxcvbn.Matcher
             Subs = new Dictionary<char, char>();
         }
 
+        /// <summary>
+        /// Create an empty l33t match
+        /// </summary>
         public L33tDictionaryMatch()
         {
             Subs = new Dictionary<char, char>();

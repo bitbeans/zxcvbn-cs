@@ -6,10 +6,17 @@ using System.Text.RegularExpressions;
 
 namespace Zxcvbn.Matcher
 {
-    // TODO: This whole class is a bit messy but works (hust), could do with a touching up. In particular this version does not allow the match to contain
-    //       the matched year/month/day which zxcvbn can do
+    /// <summary>
+    /// <para>This matcher attempts to guess dates, with and without date separators. e.g. 1197 (could be 1/1/97) through to 18/12/2015.</para>
+    /// 
+    /// <para>The format for matching dates is quite particular, and only detected years in the range 00-99 and 1900-2019 are considered by
+    /// this matcher.</para>
+    /// </summary>
     public class DateMatcher : IMatcher
     {
+        // TODO: This whole matcher is a rather messy but works (just), could do with a touching up. In particular it does not provide matched date details for dates without separators
+
+
         const string DatePattern = "date";
 
 
@@ -26,6 +33,12 @@ namespace Zxcvbn.Matcher
   \2                                  # same separator
   ( \d{1,2} )                         # month or day";
 
+        /// <summary>
+        /// Find date matches in <paramref name="password"/>
+        /// </summary>
+        /// <param name="password">The passsord to check</param>
+        /// <returns>An enumerable of date matches</returns>
+        /// <seealso cref="DateMatch"/>
         public IEnumerable<Match> MatchPassword(string password)
         {           
             var matches = new List<Match>();
@@ -49,13 +62,21 @@ namespace Zxcvbn.Matcher
                 var year = dateMatch.Groups[4].Value.ToInt();
                 var month = dateMatch.Groups[3].Value.ToInt(); // or day
                 var day = dateMatch.Groups[1].Value.ToInt(); // or month
-                if (IsDateInRange(year, month, day) || IsDateInRange(year, day, month)) matches.Add(new Match()
+
+                // Do a quick check for month/day swap (e.g. US dates)
+                if (12 <= month && month <= 31 && day <= 12) { var t = month; month = day; day = t; }
+
+                if (IsDateInRange(year, month, day)) matches.Add(new DateMatch()
                 {
                     Pattern = DatePattern,
                     i = dateMatch.Index,
                     j = dateMatch.Index + dateMatch.Length - 1,
                     Token = dateMatch.Value,
-                    Entropy = CalculateEntropy(dateMatch.Value, year, true)
+                    Entropy = CalculateEntropy(dateMatch.Value, year, true),
+                    Separator = dateMatch.Groups[2].Value,
+                    Year = year,
+                    Month = month,
+                    Day = day
                 });
             }
 
@@ -65,13 +86,21 @@ namespace Zxcvbn.Matcher
                 var year = dateMatch.Groups[1].Value.ToInt();
                 var month = dateMatch.Groups[3].Value.ToInt(); // or day
                 var day = dateMatch.Groups[4].Value.ToInt(); // or month
-                if (IsDateInRange(year, month, day) || IsDateInRange(year, day, month)) matches.Add(new Match()
+
+                // Do a quick check for month/day swap (e.g. US dates)
+                if (12 <= month && month <= 31 && day <= 12) { var t = month; month = day; day = t; }
+
+                if (IsDateInRange(year, month, day)) matches.Add(new DateMatch()
                 {
                     Pattern = DatePattern,
                     i = dateMatch.Index,
                     j = dateMatch.Index + dateMatch.Length - 1,
                     Token = dateMatch.Value,
-                    Entropy = CalculateEntropy(dateMatch.Value, year, true)
+                    Entropy = CalculateEntropy(dateMatch.Value, year, true),
+                    Separator = dateMatch.Groups[2].Value,
+                    Year = year,
+                    Month = month,
+                    Day = day
                 });
             }
 
@@ -189,6 +218,32 @@ namespace Zxcvbn.Matcher
         {
             return 1 <= month && month <= 12 && 1 <= day && day <= 31;
         }
+    }
+
+    /// <summary>
+    /// A match found by the date matcher
+    /// </summary>
+    public class DateMatch : Match
+    {
+        /// <summary>
+        /// The detected year
+        /// </summary>
+        public int Year { get; set; }
+
+        /// <summary>
+        /// The detected month
+        /// </summary>
+        public int Month { get; set; }
+
+        /// <summary>
+        /// The detected day
+        /// </summary>
+        public int Day { get; set; }
+
+        /// <summary>
+        /// Where a date with separators is matched, this will contain the separator that was used (e.g. '/', '-')
+        /// </summary>
+        public string Separator { get; set; }
     }
 
 }

@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Zxcvbn.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Zxcvbn.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -47,7 +49,6 @@
     <Compile Include="Matcher\DictionaryMatcher.cs" />
     <Compile Include="Matcher\IMatcher.cs" />
     <Compile Include="Matcher\L33tMatcher.cs" />
-    <Compile Include="Matcher\NullMatcher.cs" />
     <Compile Include="Matcher\RegexMatcher.cs" />
     <Compile Include="Matcher\RepeatMatcher.cs" />
     <Compile Include="Matcher\SequenceMatcher.cs" />
@@ -59,7 +60,15 @@
     <Compile Include="Zxcvbn.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Dictionaries\Readme.txt" />
     <Content Include="TODO-Global.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Dictionaries\english.lst" />
+    <EmbeddedResource Include="Dictionaries\female_names.lst" />
+    <EmbeddedResource Include="Dictionaries\male_names.lst" />
+    <EmbeddedResource Include="Dictionaries\passwords.lst" />
+    <EmbeddedResource Include="Dictionaries\surnames.lst" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -6,12 +6,17 @@ using System.Text.RegularExpressions;
 
 namespace Zxcvbn
 {
+    /// <summary>
+    /// Some useful shared functions used for evaluating passwords
+    /// </summary>
     static class PasswordScoring
     {
         /// <summary>
         /// Calculate the cardinality of the minimal character sets necessary to brute force the password (roughly)
         /// (e.g. lowercase = 26, numbers = 10, lowercase + numbers = 36)
         /// </summary>
+        /// <param name="password">THe password to evaluate</param>
+        /// <returns>An estimation of the cardinality of charactes for this password</returns>
         public static int PasswordCardinality(string password)
         {
             var cl = 0;
@@ -28,8 +33,8 @@ namespace Zxcvbn
         /// <summary>
         /// Calculate a rough estimate of crack time for entropy, see zxcbn scoring.coffee for more information on the model used
         /// </summary>
-        /// <param name="entropy"></param>
-        /// <returns></returns>
+        /// <param name="entropy">Entropy of password</param>
+        /// <returns>An estimation of seconts taken to crack password</returns>
         public static double EntropyToCrackTime(double entropy)
         {
             const double SingleGuess = 0.01;
@@ -42,7 +47,7 @@ namespace Zxcvbn
         /// <summary>
         /// Return a score for password strength from the crack time. Scores are 0..4, 0 being minimum and 4 maximum strength.
         /// </summary>
-        /// <param name="crackTime"></param>
+        /// <param name="crackTimeSeconds">Number of seconds estimated for password cracking</param>
         /// <returns>Password strength. 0 to 4, 0 is minimum</returns>
         public static int CrackTimeToScore(double crackTimeSeconds)
         {
@@ -57,6 +62,9 @@ namespace Zxcvbn
         /// Caclulate binomial coefficient (i.e. nCk)
         /// Uses same algorithm as zxcvbn (cf. scoring.coffee), from http://blog.plover.com/math/choose.html 
         /// </summary>
+        /// <param name="k">k</param>
+        /// <param name="n">n</param>
+        /// <returns>Binomial coefficient; nCk</returns>
         public static long Binomial(int n, int k)
         {
             if (k > n) return 0;
@@ -77,6 +85,8 @@ namespace Zxcvbn
         /// Estimate the extra entropy in a token that comes from mixing upper and lowercase letters.
         /// This has been moved to a static function so that it can be used in multiple entropy calculations.
         /// </summary>
+        /// <param name="word">The word to calculate uppercase entropy for</param>
+        /// <returns>An estimation of the entropy gained from casing in <paramref name="word"/></returns>
         public static double CalculateUppercaseEntropy(string word)
         {
             const string StartUpper = "^[A-Z][^A-Z]+$";

@@ -5,17 +5,34 @@ using System.Text;
 
 namespace Zxcvbn.Matcher
 {
+    /// <summary>
+    /// <para>A matcher that checks for keyboard layout patterns (e.g. 78523 on a keypad, or plkmn on a QWERTY keyboard).</para>
+    /// <para>Has patterns for QWERTY, DVORAK, numeric keybad and mac numeric keypad</para>
+    /// <para>The matcher accounts for shifted characters (e.g. qwErt or po9*7y) when detecting patterns as well as multiple changes in direction.</para>
+    /// </summary>
     public class SpatialMatcher : IMatcher
     {
         const string SpatialPattern = "spatial";
 
         Lazy<List<SpatialGraph>> spatialGraphs = new Lazy<List<SpatialGraph>>(() => GenerateSpatialGraphs());
 
+        /// <summary>
+        /// Match the password against the known keyboard layouts
+        /// </summary>
+        /// <param name="password">Password to match</param>
+        /// <returns>List of matching patterns</returns>
+        /// <seealso cref="SpatialMatch"/>
         public IEnumerable<Match> MatchPassword(string password)
         {
             return spatialGraphs.Value.SelectMany((g) => SpatialMatch(g, password)).ToList();
         }
 
+        /// <summary>
+        /// Match the password against a single pattern
+        /// </summary>
+        /// <param name="graph">Adjacency graph for this key layout</param>
+        /// <param name="password">Password to match</param>
+        /// <returns>List of matching patterns</returns>
         private List<Match> SpatialMatch(SpatialGraph graph, string password)
         {
             var matches = new List<Match>();
@@ -72,7 +89,7 @@ namespace Zxcvbn.Matcher
         // In the JS version these are precomputed, but for now we'll generate them here when they are first needed.
         private static List<SpatialGraph> GenerateSpatialGraphs()
         {
-            // Kwyboard layouts directly from zxcvbn's build_kayboard_adjacency_graph.py script
+            // Kwyboard layouts directly from zxcvbn's build_keyboard_adjacency_graph.py script
             const string qwerty = @"
 `~ 1! 2@ 3# 4$ 5% 6^ 7& 8* 9( 0) -_ =+
     qQ wW eE rR tT yY uU iI oO pP [{ ]} \|
@@ -112,7 +129,6 @@ namespace Zxcvbn.Matcher
         }
 
         // See build_keyboard_adjacency_graph.py in zxcvbn for how these are generated
-        // TODO: this is a quick and dirty adaptation could be spruced up a bit
         private class SpatialGraph
         {
             public string Name { get; private set; }
@@ -267,10 +283,24 @@ namespace Zxcvbn.Matcher
         }
     }
 
+    /// <summary>
+    /// A match made with the <see cref="SpatialMatcher"/>. Contains additional information specific to spatial matches.
+    /// </summary>
     public class SpatialMatch : Match
     {
+        /// <summary>
+        /// The name of the keyboard layout used to make the spatial match
+        /// </summary>
         public string Graph { get; set; }
+
+        /// <summary>
+        /// The number of turns made (i.e. when diretion of adjacent keys changes)
+        /// </summary>
         public int Turns { get; set; }
+
+        /// <summary>
+        /// The number of shifted characters matched in the pattern (adds to entropy)
+        /// </summary>
         public int ShiftedCount { get; set; }
     }
 }

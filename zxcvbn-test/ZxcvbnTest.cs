@@ -84,7 +84,6 @@ namespace zxcvbn_test
         };
 
         [TestMethod]
-        //[Ignore] // Test will not run without dictionaries in the output directory
         public void RunAllTestPasswords()
         {
             var zx = new Zxcvbn.Zxcvbn(new Zxcvbn.DefaultMatcherFactory());
@@ -93,7 +92,7 @@ namespace zxcvbn_test
             {
                 var password = testPasswords[i];
 
-                var result = zx.GetPasswordMatches(password);
+                var result = zx.EvaluatePassword(password);
 
                 O("");
                 O("Password:        {0}", result.Password);
@@ -135,6 +134,29 @@ namespace zxcvbn_test
                         O("Turns:        {0}", sm.Turns);
                         O("Shifted Keys: {0}", sm.ShiftedCount);
                     }
+
+                    if (match is Zxcvbn.Matcher.RepeatMatch)
+                    {
+                        var rm = match as Zxcvbn.Matcher.RepeatMatch;
+                        O("Repeat char:  {0}", rm.RepeatChar);
+                    }
+
+                    if (match is Zxcvbn.Matcher.SequenceMatch)
+                    {
+                        var sm = match as Zxcvbn.Matcher.SequenceMatch;
+                        O("Seq. name:    {0}", sm.SequenceName);
+                        O("Seq. size:    {0}", sm.SequenceSize);
+                        O("Ascending:    {0}", sm.Ascending);
+                    }
+
+                    if (match is Zxcvbn.Matcher.DateMatch)
+                    {
+                        var dm = match as Zxcvbn.Matcher.DateMatch;
+                        O("Day:          {0}", dm.Day);
+                        O("Month:        {0}", dm.Month);
+                        O("Year:         {0}", dm.Year);
+                        O("Separator:    {0}", dm.Separator);
+                    }
                 }
 
                 O("");
@@ -149,19 +171,6 @@ namespace zxcvbn_test
             System.Diagnostics.Debug.WriteLine(format, args);
         }
 
-
-        [TestMethod]
-        public void RunAllTestPasswordsWithNullMatcher()
-        {
-            //TODO: Make this test do something useful?
-
-            var zxc = new Zxcvbn.Zxcvbn(new Zxcvbn.DefaultMatcherFactory(new List<Zxcvbn.Matcher.IMatcher>{ new Zxcvbn.Matcher.NullMatcher() }));
-
-            foreach (var password in testPasswords)
-            {
-                var result = zxc.GetPasswordMatches(password);
-            }
-        }
 
         [TestMethod]
         public void BruteForceCardinalityTest()
@@ -190,17 +199,17 @@ namespace zxcvbn_test
         {
             var repeat = new Zxcvbn.Matcher.RepeatMatcher();
 
-            var res = repeat.MatchPassword("aasdffff");
+            var res = repeat.MatchPassword("aaasdffff");
             Assert.AreEqual(2, res.Count());
 
             var m1 = res.ElementAt(0);
             Assert.AreEqual(0, m1.i);
-            Assert.AreEqual(1, m1.j);
-            Assert.AreEqual("aa", m1.Token);
+            Assert.AreEqual(2, m1.j);
+            Assert.AreEqual("aaa", m1.Token);
 
             var m2 = res.ElementAt(1);
-            Assert.AreEqual(4, m2.i);
-            Assert.AreEqual(7, m2.j);
+            Assert.AreEqual(5, m2.i);
+            Assert.AreEqual(8, m2.j);
             Assert.AreEqual("ffff", m2.Token);
 
 
@@ -310,7 +319,7 @@ namespace zxcvbn_test
             Assert.AreEqual(4, m1.j);
 
             res = sm.MatchPassword("plko14569852pyfdb");
-            Assert.AreEqual(7, res.Count()); // Multiple matches from different keyboard types
+            Assert.AreEqual(6, res.Count()); // Multiple matches from different keyboard types
         }
 
         [TestMethod]
@@ -357,6 +366,19 @@ namespace zxcvbn_test
             l.MatchPassword("p1!ssword");
             l.MatchPassword("p1!ssw0rd");
             l.MatchPassword("p1!ssw0rd|");
+        }
+
+        [TestMethod]
+        public void EmptyPassword()
+        {
+            var res = Zxcvbn.Zxcvbn.MatchPassword("");
+            Assert.AreEqual(0, res.Entropy);
+        }
+
+        [TestMethod]
+        public void SinglePasswordTest()
+        {
+            var res = Zxcvbn.Zxcvbn.MatchPassword("||ke");
         }
     }
 }

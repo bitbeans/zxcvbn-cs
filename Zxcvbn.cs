@@ -7,10 +7,16 @@ using Zxcvbn.Matcher;
 namespace Zxcvbn
 {
     /// <summary>
-    /// Zxcvbn is used to estimate the strength of passwords. 
+    /// <para>Zxcvbn is used to estimate the strength of passwords. </para>
     /// 
-    /// This implementation is a port of the Zxcvbn JavaScript library by Dan Wheeler:
-    /// https://github.com/lowe/zxcvbn
+    /// <para>This implementation is a port of the Zxcvbn JavaScript library by Dan Wheeler:
+    /// https://github.com/lowe/zxcvbn</para>
+    /// 
+    /// <para>To quickly evaluate a password, use the <see cref="MatchPassword"/> static function.</para>
+    /// 
+    /// <para>To evaluate a number of passwords, create an instance of this object and repeatedly call the <see cref="EvaluatePassword"/> function.
+    /// Reusing the the Zxcvbn instance will ensure that pattern matchers will only be created once rather than being recreated for each password
+    /// e=being evaluated.</para>
     /// </summary>
     public class Zxcvbn
     {
@@ -18,24 +24,35 @@ namespace Zxcvbn
 
         private IMatcherFactory matcherFactory;
 
+
         /// <summary>
-        /// Create an instance of Zxcvbnm that will use the given matcher factory to create matchers to use
+        /// Create a new instance of Zxcvbn that uses the default matchers.
+        /// </summary>
+        public Zxcvbn()
+            : this(new DefaultMatcherFactory())
+        {
+        }
+
+        /// <summary>
+        /// Create an instance of Zxcvbn that will use the given matcher factory to create matchers to use
         /// to find password weakness.
         /// </summary>
-        /// <param name="matcherFactory"></param>
+        /// <param name="matcherFactory">The factory used to create the pattern matchers used</param>
         public Zxcvbn(IMatcherFactory matcherFactory)
         {
             this.matcherFactory = matcherFactory;
         }
 
         /// <summary>
-        /// Perform the password matching on the given password and user inputs, returing the result structure with information
-        /// on the lowest entropy match found.
+        /// <para>Perform the password matching on the given password and user inputs, returing the result structure with information
+        /// on the lowest entropy match found.</para>
+        /// 
+        /// <para>User data will be treated as another kind of dictionary matching, but can be different for each password being evaluated.</para>para>
         /// </summary>
         /// <param name="password">Password</param>
         /// <param name="userInputs">Optionally, an enumarable of user data</param>
         /// <returns>Result for lowest entropy match</returns>
-        public Result GetPasswordMatches(string password, IEnumerable<string> userInputs = null)
+        public Result EvaluatePassword(string password, IEnumerable<string> userInputs = null)
         {
             userInputs = userInputs ?? new string[0];
 
@@ -57,8 +74,12 @@ namespace Zxcvbn
         }
 
         /// <summary>
-        /// Returns a new result structure initialised with data for the lowest entropy result of all of the matches passed in.
+        /// Returns a new result structure initialised with data for the lowest entropy result of all of the matches passed in, adding brute-force
+        /// matches where there are no lesser entropy found pattern matches.
         /// </summary>
+        /// <param name="matches">Password being evaluated</param>
+        /// <param name="password">List of matches found against the password</param>
+        /// <returns>A result object for the lowest entropy match sequence</returns>
         private Result FindMinimumEntropyMatch(string password, IEnumerable<Match> matches)
         {
             var bruteforce_cardinality = PasswordScoring.PasswordCardinality(password);
@@ -115,6 +136,7 @@ namespace Zxcvbn
             }
             else
             {
+                // There are matches, so find the gaps and fill them in
                 var matchSequenceCopy = new List<Match>();
                 for (var k = 0; k < matchSequence.Count; k++)
                 {
@@ -158,16 +180,18 @@ namespace Zxcvbn
         }
         
         /// <summary>
-        /// A static function to match a password against the default matchers without having to create
-        /// an instance of Zxcvbn yourself, with supplied user data. 
+        /// <para>A static function to match a password against the default matchers without having to create
+        /// an instance of Zxcvbn yourself, with supplied user data. </para>
+        /// 
+        /// <para>Supplied user data will be treated as another kind of dictionary matching.</para>
         /// </summary>
         /// <param name="password">the password to test</param>
-        /// <param name="userInputs">optionally, the user inputs</param>
-        /// <returns></returns>
+        /// <param name="userInputs">optionally, the user inputs list</param>
+        /// <returns>The results of the password evaluation</returns>
         public static Result MatchPassword(string password, IEnumerable<string> userInputs = null)
         {
             var zx = new Zxcvbn(new DefaultMatcherFactory());
-            return zx.GetPasswordMatches(password, userInputs);
+            return zx.EvaluatePassword(password, userInputs);
         }
 
     }

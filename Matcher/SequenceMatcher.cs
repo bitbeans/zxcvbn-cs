@@ -5,21 +5,36 @@ using System.Text;
 
 namespace Zxcvbn.Matcher
 {
+    /// <summary>
+    /// This matcher detects lexicographical sequences (and in reverse) e.g. abcd, 4567, PONML etc.
+    /// </summary>
     public class SequenceMatcher : IMatcher
     {
-        // Sequences should not overlap
+        // Sequences should not overlap, sequences here must be ascending, their reverses will be checked automatically
         string[] Sequences = new string[] { 
             "abcdefghijklmnopqrstuvwxyz",
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-            "0123456789"
+            "01234567890"
+        };
+
+        string[] SequenceNames = new string[] {
+            "lower",
+            "upper",
+            "digits"
         };
 
         const string SequencePattern = "sequence";
 
+        /// <summary>
+        /// Find matching sequences in <paramref name="password"/>
+        /// </summary>
+        /// <param name="password">The password to check</param>
+        /// <returns>Enumerable of sqeunec matches</returns>
+        /// <seealso cref="SequenceMatch"/>
         public IEnumerable<Match> MatchPassword(string password)
         {
             // Sequences to check should be the set of sequences and their reverses (i.e. want to match "abcd" and "dcba")
-            var seqs = Sequences.Union(Sequences.Select(s => s.StringReverse()));
+            var seqs = Sequences.Union(Sequences.Select(s => s.StringReverse())).ToList();
 
             var matches = new List<Match>();
 
@@ -52,13 +67,20 @@ namespace Zxcvbn.Matcher
                     // Only want to consider sequences that are longer than two characters
                     if (length > 2)
                     {
+                        // Find the sequence index so we can match it up with its name
+                        var seqIndex = seqs.IndexOf(seq);
+                        if (seqIndex >= Sequences.Length) seqIndex -= Sequences.Length; // match reversed sequence with its original
+
                         var match = password.Substring(i, j - i);
-                        matches.Add(new Match() {
+                        matches.Add(new SequenceMatch() {
                             i = i,
                             j = j - 1,
                             Token = match,
                             Pattern = SequencePattern,
-                            Entropy = CalculateEntropy(match, ascending)
+                            Entropy = CalculateEntropy(match, ascending),
+                            Ascending = ascending,
+                            SequenceName = SequenceNames[seqIndex],
+                            SequenceSize = Sequences[seqIndex].Length
                         });
                     }
                 }
@@ -84,5 +106,26 @@ namespace Zxcvbn.Matcher
 
             return baseEntropy + Math.Log(match.Length, 2);
         }
+    }
+
+    /// <summary>
+    /// A match made using the <see cref="SequenceMatcher"/> containing some additional sequence information.
+    /// </summary>
+    public class SequenceMatch : Match
+    {
+        /// <summary>
+        /// The name of the sequence that the match was found in (e.g. 'lower', 'upper', 'digits')
+        /// </summary>
+        public string SequenceName { get; set; }
+
+        /// <summary>
+        /// The size of the sequence the match was found in (e.g. 26 for lowercase letters)
+        /// </summary>
+        public int SequenceSize { get; set; }
+
+        /// <summary>
+        /// Whether the match was found in ascending order (cdefg) or not (zyxw)
+        /// </summary>
+        public bool Ascending { get; set; }
     }
 }
