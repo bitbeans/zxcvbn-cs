@@ -28,7 +28,7 @@ as the JS version.
 There are some implementation differences, however, so exact results are not guaranteed.
 
 
-## Using `Zxcvbn-cs`
+### Using `Zxcvbn-cs`
 
 The included Visual Studio project will create a single assembly, Zxcvbn.dll, which is all that is
 required to be included in your project.
@@ -64,7 +64,7 @@ foreach (var password in passwords)
 Both `MatchPassword` and `EvaluatePassword` take an optional second parameter that contains an enumerable of
 user data strings to also match the password against.
 
-## Interpreting Results
+### Interpreting Results
 
 The `Result` structure returned from password evaluation is interpreted the same way as with JS `Zxcvbn`:
 
@@ -75,7 +75,7 @@ The `Result` structure returned from password evaluation is interpreted the same
 - `result.MatchSequence`: the list of pattern matches that was used to calculate Entropy.
 - `result.CalculationTime`: how long `Zxcvbn` took to calculate the results.
 
-## More Information
+### More Information
 
 For more information on why password entropy is calculated as it is, refer to `Zxcvbn`s originators:
 
@@ -84,6 +84,6 @@ https://github.com/lowe/zxcvbn
 http://tech.dropbox.com/?p=165
 
 
-## Licence
+### Licence
 
 Since `Zxcvbn-cs` is a port of the original `Zxcvbn` the original copyright and licensing applies. Cf. the LICENSE file.
