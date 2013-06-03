@@ -66,29 +66,12 @@ namespace Zxcvbn.Matcher
         private void CalculateEntropyForMatch(DictionaryMatch match)
         {
             match.BaseEntropy = Math.Log(match.Rank, 2);
-            match.UppercaseEntropy = CalculateUppercaseEntropy(match.Token);
+            match.UppercaseEntropy = PasswordScoring.CalculateUppercaseEntropy(match.Token);
             
             match.Entropy = match.BaseEntropy + match.UppercaseEntropy;
         }
 
-        private double CalculateUppercaseEntropy(string word)
-        {
-            const string StartUpper = "^[A-Z][^A-Z]+$";
-            const string EndUpper = "^[^A-Z]+[A-Z]$";
-            const string AllUpper = "^[^a-z]+$";
-            const string AllLower = "^[^A-Z]+$";
-
-            if (Regex.IsMatch(word, AllLower)) return 0;
-
-            // If the word is all uppercase add's only one bit of entropy, add only one bit for initial/end single cap only
-            if (new[] { StartUpper, EndUpper, AllUpper }.Any(re => Regex.IsMatch(word, re))) return 1;
-
-            var lowers = word.Where(c => 'a' <= c && c <= 'z').Count();
-            var uppers = word.Where(c => 'A' <= c && c <= 'Z').Count();
-
-            // Calculate numer of ways to capitalise (or inverse if there are fewer lowercase chars) and return lg for entropy
-            return Math.Log(Enumerable.Range(0, Math.Min(uppers, lowers) + 1).Sum(i => PasswordScoring.Binomial(uppers + lowers, i)) , 2);
-        }
+        
 
         private Dictionary<string, int> BuildRankedDictionary(string wordListPath)
         {

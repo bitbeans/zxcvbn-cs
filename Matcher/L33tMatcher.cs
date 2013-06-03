@@ -61,6 +61,11 @@ namespace Zxcvbn.Matcher
             // In the case of only a single subsitution (e.g. 4pple) this would otherwise come out as zero, so give it one bit
             match.L33tEntropy = (entropy < 1 ? 1 : entropy);
             match.Entropy += match.L33tEntropy;
+
+            // We have to recalculate the uppercase entropy -- the password matcher will have used the subbed password not the original text
+            match.Entropy -= match.UppercaseEntropy;
+            match.UppercaseEntropy = PasswordScoring.CalculateUppercaseEntropy(match.Token);
+            match.Entropy += match.UppercaseEntropy;
         }
 
         private string TranslateString(Dictionary<char, char> charMap, string str)

@@ -11,16 +11,19 @@ namespace Zxcvbn.Matcher
         Regex matchRegex;
         string matcherName;
         int cardinality;
+        bool perCharCardinality;
 
-        public RegexMatcher(string pattern, int cardinality, string matcherName = "regex") : this(new Regex(pattern), cardinality, matcherName)
+        public RegexMatcher(string pattern, int cardinality, bool perCharCardinality = true, string matcherName = "regex") 
+            : this(new Regex(pattern), cardinality, perCharCardinality, matcherName)
         {
         }
 
-        public RegexMatcher(Regex matchRegex, int cardinality, string matcherName = "regex")
+        public RegexMatcher(Regex matchRegex, int cardinality, bool perCharCardinality, string matcherName = "regex")
         {
             this.matchRegex = matchRegex;
             this.matcherName = matcherName;
             this.cardinality = cardinality;
+            this.perCharCardinality = perCharCardinality;
         }
 
         public IEnumerable<Match> MatchPassword(string password)
@@ -38,7 +41,7 @@ namespace Zxcvbn.Matcher
                     j = rem.Index + rem.Length - 1,
                     Token = password.Substring(rem.Index, rem.Length),
                     Cardinality = cardinality,
-                    Entropy = Math.Log(cardinality, 2)
+                    Entropy = Math.Log((perCharCardinality ? Math.Pow(cardinality, rem.Length) : cardinality), 2) // Raise cardinality to length when giver per character
                 });
             }
 

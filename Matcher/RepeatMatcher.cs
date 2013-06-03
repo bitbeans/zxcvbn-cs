@@ -16,7 +16,8 @@ namespace Zxcvbn.Matcher
         {
             var matches = new List<Match>();
 
-            return password.GroupAdjacent(c => c).Where(g => g.Count() > 1).Select(g => new Match {
+            // Be sure to not count groups of one or two characters
+            return password.GroupAdjacent(c => c).Where(g => g.Count() > 2).Select(g => new Match {
                 Pattern = RepeatPattern,
                 Token = password.Substring(g.StartIndex, g.EndIndex - g.StartIndex + 1),
                 i = g.StartIndex,
